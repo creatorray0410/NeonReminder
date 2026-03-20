@@ -1,0 +1,13 @@
+.DS_Store
+.build/
+.swiftpm/
+*.xcodeproj
+xcuserdata/
+DerivedData/
+*.app
+*.dmg
+*.iconset
+NeonReminder.icns
+screenshot*.png
+app_front.png
+web_screenshot*.png
