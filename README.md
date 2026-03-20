@@ -10,10 +10,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/CreatorRay0410/NeonReminder/releases/latest"><img src="https://img.shields.io/github/v/release/CreatorRay0410/NeonReminder?style=flat-square&color=00e5cc" alt="Release" /></a>
+  <a href="https://github.com/creatorray0410/NeonReminder/releases/latest"><img src="https://img.shields.io/github/v/release/creatorray0410/NeonReminder?style=flat-square&color=00e5cc" alt="Release" /></a>
   <img src="https://img.shields.io/badge/platform-macOS%2014%2B-blue?style=flat-square" alt="Platform" />
   <img src="https://img.shields.io/badge/swift-6.2-orange?style=flat-square" alt="Swift" />
-  <img src="https://img.shields.io/github/license/CreatorRay0410/NeonReminder?style=flat-square" alt="License" />
+  <img src="https://img.shields.io/github/license/creatorray0410/NeonReminder?style=flat-square" alt="License" />
 </p>
 
 <p align="center">
@@ -59,7 +59,7 @@ The core of Neon Reminder is its **unmissable alert mechanism**:
 
 ### Download (Recommended)
 
-1. Go to the [Releases page](https://github.com/CreatorRay0410/NeonReminder/releases/latest)
+1. Go to the [Releases page](https://github.com/creatorray0410/NeonReminder/releases/latest)
 2. Download `NeonReminder-v1.0.0.dmg`
 3. Open the DMG and drag **Neon Reminder** to your Applications folder
 4. On first launch, right-click the app → **Open** (required for unsigned apps)
@@ -69,7 +69,7 @@ The core of Neon Reminder is its **unmissable alert mechanism**:
 ### Build from Source
 
 ```bash
-git clone https://github.com/CreatorRay0410/NeonReminder.git
+git clone https://github.com/creatorray0410/NeonReminder.git
 cd NeonReminder
 swift build -c release
 ./build.sh          # Builds .app bundle
@@ -149,11 +149,11 @@ This project is open source. See the repository for license details.
 
 ### 安装方式
 
-**下载安装（推荐）：** 前往 [Release 页面](https://github.com/CreatorRay0410/NeonReminder/releases/latest) 下载 `.dmg` 文件，打开后将应用拖入 Applications 文件夹。首次打开需右键点击应用 → 打开。
+**下载安装（推荐）：** 前往 [Release 页面](https://github.com/creatorray0410/NeonReminder/releases/latest) 下载 `.dmg` 文件，打开后将应用拖入 Applications 文件夹。首次打开需右键点击应用 → 打开。
 
 **从源码编译：**
 ```bash
-git clone https://github.com/CreatorRay0410/NeonReminder.git
+git clone https://github.com/creatorray0410/NeonReminder.git
 cd NeonReminder
 swift build -c release
 ./build.sh
