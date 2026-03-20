@@ -17,6 +17,7 @@ class AlertManager: ObservableObject {
     private var focusTimer: Timer?
     private var alertWindow: NSWindow?
     private var isDismissing = false
+    private var currentAlertTodoId: UUID?
     
     enum AlertType {
         case task
@@ -48,6 +49,7 @@ class AlertManager: ObservableObject {
                 let msg = first.notes.isEmpty
                     ? "\(self.l10n?.s(.scheduledFor) ?? "Scheduled for") \(TimeFormatter.formatShortTime(first.dueDate))"
                     : first.notes
+                self.currentAlertTodoId = first.id
                 self.triggerAlert(
                     title: first.title,
                     message: msg,
@@ -94,6 +96,17 @@ class AlertManager: ObservableObject {
         guard !isDismissing else { return }
         isDismissing = true
         isShowingAlert = false
+        
+        // Auto-complete the task when user dismisses the alert
+        if currentAlertType == .task, let todoId = currentAlertTodoId {
+            if let store = store, let index = store.todos.firstIndex(where: { $0.id == todoId }) {
+                if !store.todos[index].isCompleted {
+                    store.todos[index].isCompleted = true
+                    store.saveTodos()
+                }
+            }
+            currentAlertTodoId = nil
+        }
         
         DispatchQueue.main.async { [weak self] in
             self?.dismissAlertWindow()

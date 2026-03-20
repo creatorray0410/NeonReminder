@@ -16,13 +16,28 @@ struct TaskListView: View {
         store.todos.filter { $0.isCompleted }.sorted { $0.dueDate > $1.dueDate }
     }
     
+    // Pending = not completed AND not yet overdue (dueDate is still in the future)
+    private var pendingCount: Int {
+        store.todos.filter { !$0.isCompleted && $0.dueDate >= Date() }.count
+    }
+    
+    // Overdue = not completed AND past due date
+    private var overdueCount: Int {
+        store.todos.filter { !$0.isCompleted && $0.dueDate < Date() }.count
+    }
+    
+    // Today = all tasks (completed or not) whose dueDate is today
+    private var todayCount: Int {
+        store.todos.filter { Calendar.current.isDateInToday($0.dueDate) }.count
+    }
+    
     var body: some View {
         VStack(spacing: 20) {
             // Quick stats
             HStack(spacing: 16) {
-                StatCard(title: l10n.s(.pending), value: "\(activeTasks.count)", icon: "clock", color: NeonColors.cyan)
-                StatCard(title: l10n.s(.overdue), value: "\(activeTasks.filter { $0.dueDate < Date() }.count)", icon: "exclamationmark.triangle", color: NeonColors.red)
-                StatCard(title: l10n.s(.today), value: "\(activeTasks.filter { Calendar.current.isDateInToday($0.dueDate) }.count)", icon: "sun.max", color: NeonColors.orange)
+                StatCard(title: l10n.s(.pending), value: "\(pendingCount)", icon: "clock", color: NeonColors.cyan)
+                StatCard(title: l10n.s(.overdue), value: "\(overdueCount)", icon: "exclamationmark.triangle", color: NeonColors.red)
+                StatCard(title: l10n.s(.today), value: "\(todayCount)", icon: "sun.max", color: NeonColors.orange)
                 StatCard(title: l10n.s(.completed), value: "\(completedTasks.count)", icon: "checkmark.circle", color: NeonColors.green)
             }
             .padding(.horizontal, 28)
@@ -57,12 +72,36 @@ struct TaskListView: View {
             .buttonStyle(.plain)
             .padding(.horizontal, 28)
             
-            // Active tasks
-            if !activeTasks.isEmpty {
+            // Overdue tasks section
+            if activeTasks.contains(where: { $0.dueDate < Date() }) {
+                let overdueTasks = activeTasks.filter { $0.dueDate < Date() }
                 VStack(alignment: .leading, spacing: 12) {
-                    SectionHeader(title: l10n.s(.activeTasks), count: activeTasks.count, color: NeonColors.cyan)
+                    SectionHeader(title: l10n.s(.overdue), count: overdueTasks.count, color: NeonColors.red)
                     
-                    ForEach(activeTasks) { task in
+                    ForEach(overdueTasks) { task in
+                        TaskRow(
+                            task: task,
+                            isHovered: hoveredTaskId == task.id,
+                            l10n: l10n,
+                            onToggle: { store.toggleTodo(task) },
+                            onEdit: { editingTask = task },
+                            onDelete: { store.deleteTodo(task) }
+                        )
+                        .onHover { hovering in
+                            hoveredTaskId = hovering ? task.id : nil
+                        }
+                    }
+                }
+                .padding(.horizontal, 28)
+            }
+            
+            // Pending tasks section
+            if activeTasks.contains(where: { $0.dueDate >= Date() }) {
+                let pendingTasks = activeTasks.filter { $0.dueDate >= Date() }
+                VStack(alignment: .leading, spacing: 12) {
+                    SectionHeader(title: l10n.s(.activeTasks), count: pendingTasks.count, color: NeonColors.cyan)
+                    
+                    ForEach(pendingTasks) { task in
                         TaskRow(
                             task: task,
                             isHovered: hoveredTaskId == task.id,
@@ -220,6 +259,7 @@ struct TaskRow: View {
     let onToggle: () -> Void
     let onEdit: () -> Void
     let onDelete: () -> Void
+    @State private var isCheckboxHovered = false
     
     private var isOverdue: Bool {
         !task.isCompleted && task.dueDate < Date()
@@ -231,24 +271,35 @@ struct TaskRow: View {
     
     var body: some View {
         HStack(spacing: 14) {
-            // Checkbox
-            Button(action: onToggle) {
+            // Checkbox - enlarged hit area with contentShape
+            Button(action: {
+                onToggle()
+            }) {
                 ZStack {
+                    // Invisible fill to ensure full hit area
                     RoundedRectangle(cornerRadius: 6)
-                        .stroke(task.isCompleted ? NeonColors.green : priorityColor.opacity(0.5), lineWidth: 1.5)
-                        .frame(width: 22, height: 22)
+                        .fill(task.isCompleted ? NeonColors.green.opacity(0.2) : (isCheckboxHovered ? priorityColor.opacity(0.1) : Color.clear))
+                        .frame(width: 26, height: 26)
+                    
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(
+                            task.isCompleted ? NeonColors.green : (isCheckboxHovered ? priorityColor : priorityColor.opacity(0.5)),
+                            lineWidth: isCheckboxHovered ? 2 : 1.5
+                        )
+                        .frame(width: 26, height: 26)
                     
                     if task.isCompleted {
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(NeonColors.green.opacity(0.2))
-                            .frame(width: 22, height: 22)
                         Image(systemName: "checkmark")
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.system(size: 12, weight: .bold))
                             .foregroundColor(NeonColors.green)
                     }
                 }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .onHover { hovering in
+                isCheckboxHovered = hovering
+            }
             
             // Priority indicator
             Rectangle()

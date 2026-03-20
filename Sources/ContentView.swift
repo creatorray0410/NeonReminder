@@ -362,6 +362,20 @@ struct StatsSummary: View {
     @ObservedObject var store: DataStore
     @ObservedObject var l10n: LocalizationManager
     
+    // Pending = not completed AND not yet overdue
+    private var pendingCount: Int {
+        store.todos.filter { !$0.isCompleted && $0.dueDate >= Date() }.count
+    }
+    
+    // Overdue = not completed AND past due
+    private var overdueCount: Int {
+        store.todos.filter { !$0.isCompleted && $0.dueDate < Date() }.count
+    }
+    
+    private var completedCount: Int {
+        store.todos.filter { $0.isCompleted }.count
+    }
+    
     var body: some View {
         VStack(spacing: 8) {
             Divider()
@@ -370,16 +384,25 @@ struct StatsSummary: View {
             
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(store.todos.filter { !$0.isCompleted }.count)")
+                    Text("\(pendingCount)")
                         .font(.system(size: 20, weight: .bold, design: .monospaced))
                         .foregroundColor(NeonColors.cyan)
-                    Text(l10n.s(.active))
+                    Text(l10n.s(.pending))
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(NeonColors.textSecondary)
+                }
+                Spacer()
+                VStack(spacing: 2) {
+                    Text("\(overdueCount)")
+                        .font(.system(size: 20, weight: .bold, design: .monospaced))
+                        .foregroundColor(NeonColors.red)
+                    Text(l10n.s(.overdue))
                         .font(.system(size: 10, weight: .medium))
                         .foregroundColor(NeonColors.textSecondary)
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("\(store.todos.filter { $0.isCompleted }.count)")
+                    Text("\(completedCount)")
                         .font(.system(size: 20, weight: .bold, design: .monospaced))
                         .foregroundColor(NeonColors.green)
                     Text(l10n.s(.done))
